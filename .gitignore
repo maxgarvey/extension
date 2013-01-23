@@ -1,0 +1,4 @@
+*.pyc
+cred.py
+conf.py
+creds.py
