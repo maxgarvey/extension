@@ -51,6 +51,15 @@
       User Cn: {{ user_cn }}<br/>
       User Dn: {{ user_dn }}<br/>
       Expire Date: {{ expire_format }}<br/>
+      {% if account_reset_info|length > 0 %}
+      <br/>
+      Account Reset Needs Attention:
+      <br/>
+       {% for item in account_reset_info %}
+         {{ item.0 }} : {{ item.1 }}
+         <br/>
+       {% endfor %}
+      {% endif %}
     </p>
 
       </div><!-- conainer -->

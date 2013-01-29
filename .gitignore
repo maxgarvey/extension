@@ -2,3 +2,4 @@
 cred.py
 conf.py
 creds.py
+*.swp

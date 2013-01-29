@@ -7,7 +7,6 @@ Currently, it is not functional, because the correct permissions to modify the p
 
 TODO:
   Setup django-admin: uncomment lines in /settings.py as well as /urls.py. uncomment login required wrappers in /views.py
-  Uncomment section modifying the psuAccountExpireDate field.
   Modify conf.py to reflect the new service account credentials with correct permissions.
   Possibly add section to renew expired account?
   When actually deployed, will have to add privileges to users via command line prior to being able to do it through the gui at <url>/admin

@@ -208,13 +208,102 @@ def extend(request):
                 current_expire_date = search_obj[1][0][1]\
                     ['psuAccountExpireDate'][0]
 
+                account_reset_errors = []
+
+                # loginShell should be '/bin/scsh'
+                current_loginShell = search_obj[1][0][1]['loginShell'][0]
+                print "current_loginShell: {0}".format(current_loginShell) #debug
+                if current_loginShell != '/bin/tcsh':
+                    try:
+                        modify(
+                            user_dn,
+                            {'loginShell':[current_loginShell]},
+                            {'loginShell':['/bin/tcsh']},
+                            my_creds,
+                        )
+                    except Exception, ex:
+                        account_reset_errors.append(
+                        ['loginShell', ex]
+                        )
+
+                #psuUnixAccountStatus should be active
+                current_psuUnixAccountStatus = search_obj[1][0][1]['psuUnixAccountStatus'][0]
+                print "current_psuUnixAccountStatus: {0}".format(current_psuUnixAccountStatus) #debug
+                if current_psuUnixAccountStatus != 'active':
+                    try:
+                        modify(
+                            user_dn,
+                            {'psuUnixAccountStatus':[current_psuUnixAccountStatus]},
+                            {'psuUnixAccountStatus':['active']},
+                            my_creds,
+                        )
+                    except Exception, ex:
+                        account_reset_errors.append(
+                        ['psuUnixAccountStatus', ex]
+                        )
+
+                #account will have a list of strings with values separated by colons in the string
+                #the 3rd value should be the new expires date, the fourth should be "active"
+                current_account = search_obj[1][0][1]['account']
+                print "current_account: {0}".format(current_account) #debug
+
+                modified_account = []
+
+                for i in current_account:
+                    split_account = i.split(":")
+                    modified_line = "{0}:{1}:{2}:{3}:{4}".format(
+                        split_account[0],
+                        split_account[1],
+                        new_expire_date[:8],
+                        "active",
+                        split_account[4],
+                    )
+                    modified_account.append(modified_line)
+
+                try:
+                    modify(
+                        user_dn,
+                        {'account':current_account},
+                        {'account':modified_account},
+                        my_creds,
+                    )
+                except Exception, ex:
+                    if str(ex) != "{'info': 'no modifications specified', 'desc': 'Protocol error'}":
+                        account_reset_errors.append(
+                            ['account', ex]
+                        )
+
+                current_userPassword = search_obj[1][0][1]['userPassword'][0]
+                print "current_userPassword: {0}".format(current_userPassword) #debug
+
+                if "!" in current_userPassword:
+                    modified_password = current_userPassword[:current_userPassword.index("!")] + current_userPassword[(current_userPassword.index("!")+1):]
+                    try:
+                        modify(
+                            user_dn,
+                            {'userPassword':current_userPassword},
+                            {'userPassword':modified_password},
+                            my_creds,
+                        )
+                    except Exception, ex:
+                        account_reset_errors.append(
+                            ['userPassword', ex]
+                        )
+                else:
+                    account_reset_errors.append(
+                        ['userPassword', 'password must be reset']
+                    )
+
                 '''THIS ERROR WILL SHOW WHEN THERE
                 AREN'T THE ABOVE NECESSARY PARTS'''
             except Exception as e:
-                render_to_response(
+                return render_to_response(
+
                     'error.html',
                     {'error_msg': str(e)},
                 )
+
+        
 
         expire_format = current_expire_date[4:6] + '/' + \
             current_expire_date[6:8] + '/' + \
@@ -222,10 +311,11 @@ def extend(request):
 
         return render_to_response(
             'result.html',
-            {'user_dn':      user_dn,
-            'user_cn':       user_cn,
-            'username':      username,
-            'expire_format': expire_format},
+            {'user_dn':           user_dn,
+            'user_cn':            user_cn,
+            'username':           username,
+            'expire_format':      expire_format,
+            'account_reset_info': account_reset_errors},
             context_instance = RequestContext(request),
         )
 
