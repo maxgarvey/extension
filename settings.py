@@ -98,6 +98,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django_cas.middleware.CASMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django_cas.backends.CASBackend',
+    # 'django.contrib.auth.backend.ModelBackend',
 )
 
 ROOT_URLCONF = 'extension.urls'
@@ -118,10 +124,15 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'extension_app',
     # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
+    'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admindocs',
 )
+
+CAS_SERVER_URL = 'https://sso.pdx.edu/cas/'
+CAS_IGNORE_REFERER = False
+CAS_LOGOUT_COMPLETELY = True
+SESSION_COOKIE_NAME = 'NO_CACHE'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

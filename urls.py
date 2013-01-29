@@ -2,8 +2,8 @@ from django.conf.urls.defaults import patterns, include, url
 import settings
 
 # Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from django.contrib import admin
+admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     url(r'^lookup$',        'extension_app.views.lookup'),
     url(r'^lookup_submit$', 'extension_app.views.lookup_submit'),
     url(r'^extend$',        'extension_app.views.extend'),
-    url(r'^custom_extend$', 'extension_app.views.extend_form'),
+    url(r'^custom_extend$', 'extension_app.views.extend'),
     url(r'^result$',        'extension_app.views.results'),
 
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
@@ -21,8 +21,11 @@ urlpatterns = patterns('',
     # url(r'^extension/', include('extension.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^accounts/login/$', 'django_cas.views.login'),
+    url(r'^accounts/logout/$', 'django_cas.views.logout'),
 )

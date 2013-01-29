@@ -3,6 +3,7 @@
 #django stuff
 from django.shortcuts import render_to_response
 from django.template  import RequestContext, Context, loader
+from django.contrib.auth.decorators import login_required
 
 #my custom modules
 from extension_forms  import lookup_form, extension_form
@@ -39,7 +40,7 @@ def blank_lookup_form(request):
     )
 
 '''THESE ARE THE URL HANDLER FUNCTIONS'''
-#@login_required
+@login_required
 def lookup(request):
     '''
         this method displays the form used to look up a sponsored account.
@@ -47,7 +48,7 @@ def lookup(request):
     #has_permission(request)
     return blank_lookup_form(request)
 
-#@login_required
+@login_required
 def lookup_submit(request):
     '''
         this method handles the form submission for a username lookup.
@@ -141,7 +142,7 @@ def lookup_submit(request):
     else:
         blank_lookup_form(request)
 
-#@login_required
+@login_required
 def extend(request):
     '''
         this method displays the results of the user lookup, and the form to
@@ -167,7 +168,6 @@ def extend(request):
             #print 'custom extend until {0}'.format(custom_extend) #debug
             custom_date_format = custom_date_process(custom_extend)
 
-            print 'custom extend until {0}'.format(custom_date_format) #debug
             if custom_date_format[0] == False:
                 return render_to_response(
                     'error.html',
@@ -176,15 +176,19 @@ def extend(request):
                 )
             else:
                 new_expire_date = custom_date_format[1]
+            print 'custom extend until {0}'.format(custom_date_format) #debug
 
         '''TODO: LDAP EXTEND CODE HERE. will use new_expire_date for the new date.'''
-        '''
+
+        print "new_expire_date: {0}, len: {1}, type: {2}".format(new_expire_date, len(new_expire_date), type(new_expire_date)) #debug
+        try:
             modify(
                 user_dn,
-                {'psuAccountExpireDate': current_expire_date},
-                {'psuAccountExpireDate': new_expire_date},
+                {'psuAccountExpireDate': [current_expire_date]},
+                {'psuAccountExpireDate': [str(new_expire_date)]},
                 my_creds)
-        '''
+        except Exception, e:
+            print "error: {0}".format(e)
 
         '''LOOKUP TO MAKE SURE IT WENT THROUGH.'''
         search_obj = search(
@@ -235,7 +239,7 @@ def extend(request):
             context_instance = RequestContext(request),
         )
 
-#@login_required
+@login_required
 def results(request):
     '''
         this method displays the results of the extension.

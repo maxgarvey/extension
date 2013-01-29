@@ -11,4 +11,6 @@ TODO:
   Modify conf.py to reflect the new service account credentials with correct permissions.
   Possibly add section to renew expired account?
   When actually deployed, will have to add privileges to users via command line prior to being able to do it through the gui at <url>/admin
+    I think this stuff is pretty easy. I would start by creating a superuser (with credens that match a psu account):
+       python manage.py createsuperuser
   Setting up apache and DNS to support the new app.
